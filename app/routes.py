@@ -4,28 +4,33 @@ from app import crud
 from .database import get_db
 from .crud import create_task, get_task, get_tasks, update_task, delete_task
 from .schemas import TaskCreate, TaskResponse
+from .dependecies import get_current_user
 
 
 router = APIRouter()
 
 
+
 @router.post("/tasks", response_model=TaskResponse)
 def create_task(
     task: TaskCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    auth=Depends(get_current_user)
 ):
     return crud.create_task(db, task)
 
 @router.get("/tasks", response_model=list[TaskResponse])
 def get_tasks(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    auth=Depends(get_current_user)
 ):
     return crud.get_tasks(db)
 
 @router.get("/task/{task_id}", response_model=TaskResponse)
 def get_task(
     task_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    auth=Depends(get_current_user)
 ):
     return crud.get_task(db, task_id)
 
@@ -37,7 +42,8 @@ def get_task(
 def put_task(
     task_id: int,
     task: TaskCreate,
-    db: Session =  Depends(get_db)
+    db: Session =  Depends(get_db),
+    auth=Depends(get_current_user)
 ):
     updated_task = crud.update_task(db, task_id, task)
     if updated_task is None:
@@ -47,9 +53,11 @@ def put_task(
 @router.delete("/task{task_id}")
 def delete_task(
     task_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    auth=Depends(get_current_user)
 ):
     result = crud.delete_task(db, task_id)
     if not result:
         raise HTTPException(status_code=404, detail="Task not found")
     return {"message": "Task deleted successfully"}
+

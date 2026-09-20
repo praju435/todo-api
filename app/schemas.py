@@ -12,3 +12,7 @@ class TaskResponse(BaseModel):
     description: str
 
     model_config = ConfigDict(from_attributes=True)
+
+class AuthRequest(BaseModel):
+    email: str
+    password: str
